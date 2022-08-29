@@ -1,18 +1,11 @@
 require("dotenv").config();
 
 const fs = require("fs");
-const path = require("path");
-const { max } = require("lodash");
+const glob = require("glob");
+const { get } = require("lodash");
 
 const AWS = require("aws-sdk");
-const multer = require("multer");
-const { memoryStorage } = require("multer");
-
-const storage = memoryStorage();
-const upload = multer({ storage });
-
-const bucketName = "gray-wolf-feed";
-
+const bucketName = process.env["BUCKET_NAME"];
 const accessKeyId = process.env["ACCESS_KEY_ID"];
 const secretAccessKey = process.env["SECRET_ACCESS_KEY_ID"];
 
@@ -21,39 +14,49 @@ const s3 = new AWS.S3({
   secretAccessKey: secretAccessKey,
 });
 
+const findLastDownload = () => {
+  return new Promise((resolve, reject) => {
+    glob("./downloads" + "/**/*.mp3", {}, (err, files) => {
+      if (err) return reject(err);
+
+      const path = files.shift();
+
+      const episodeTitle = path
+        .split("./downloads/")
+        .pop()
+        .split(".mp3")
+        .shift()
+        .replace("｜", "-");
+
+      resolve({ episodeTitle, path });
+    });
+  });
+};
+
 module.exports.uploadPodcast = async () => {
-  const file = fs.readFileSync("./mr-fun.mp3");
+  const podcast = await findLastDownload();
 
-  // const testFile = await fs.readFile('./mr-fun.mp3');
-  // console.log(files);
-  // console.log(testFile);
-
-  const fileName = "mr fun 8/26";
-  // const bucketName = null;
-  // const file = null
+  const uploadKey = get(podcast, "episodeTitle");
+  const filePath = get(podcast, "path");
+  const file = fs.readFileSync(filePath);
 
   const params = {
-    Key: fileName,
+    Key: uploadKey,
     Bucket: bucketName,
     Body: file,
     ContentType: "audio/mpeg",
     ACL: "public-read",
   };
 
-  s3.upload(params, (err, data) => {
-    if (err) {
-      console.log(err);
-      return err;
-    } else {
+  console.log("Starting S3 bucket upload...");
+
+  const uploadPromise = new Promise((resolve, reject) => {
+    s3.upload(params, (err, data) => {
+      if (err) return reject(err);
       console.log(data);
-      return data;
-    }
+      resolve(data);
+    });
   });
 
-  //   const uploadPromise = new Promise((resolve, reject) => {
-  //
-  //
-  //   });
-
-  // return await uploadPromise;
+  return await uploadPromise;
 };
