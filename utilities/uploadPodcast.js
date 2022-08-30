@@ -19,7 +19,7 @@ const findLastDownload = () => {
     glob("./downloads" + "/**/*.mp3", {}, (err, files) => {
       if (err) return reject(err);
 
-      const path = files.shift();
+      const path = files.pop();
 
       const episodeTitle = path
         .split("./downloads/")

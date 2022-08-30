@@ -1,12 +1,17 @@
-const { getUrl } = require("./getUrl");
-const { downloadVideo } = require("./downloadVideo");
-const { uploadPodcast } = require("./uploadPodcast");
+const { getUrl } = require("./utilities/getUrl");
+const { downloadVideo } = require("./utilities/downloadVideo");
+const { uploadPodcast } = require("./utilities/uploadPodcast");
 
 async function run() {
   const url = await getUrl();
-  const downloadOutput = await downloadVideo(url);
-  await uploadPodcast(url); // upload to s3 bucket
+
+  await downloadVideo(url);
+  
+  const uploadInfo = await uploadPodcast();
+
   // update the rss xml
+
+  console.log("FINISHED");
 }
 
 run();
