@@ -1,8 +1,10 @@
 const { exec } = require("child_process");
 
 module.exports.downloadVideo = async (url) => {
+
+  console.log("Starting download...");
   
-  const shellCommand = `yt-dlp -o '%(title)s.%(ext)s' -x --audio-format mp3 ${url}`;
+  const shellCommand = `yt-dlp -o './downloads/%(title)s.%(ext)s' -x --audio-format mp3 ${url}`;
 
   const downloadPromise = new Promise((resolve, reject) => {
     exec(shellCommand, (err, stdout) => {
