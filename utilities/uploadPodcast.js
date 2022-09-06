@@ -19,7 +19,17 @@ const findLastDownload = () => {
     glob("./downloads" + "/**/*.mp3", {}, (err, files) => {
       if (err) return reject(err);
 
-      const path = files.pop();
+      let cTime = null;
+      let path = null;
+
+      files.forEach((file) => {
+        const stats = fs.statSync(file);
+        const createdAt = stats.ctime;
+        if (createdAt > cTime) {
+          cTime = createdAt;
+          path = file;
+        }
+      });
 
       const episodeTitle = path
         .split("./downloads/")
