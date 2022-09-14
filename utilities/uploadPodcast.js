@@ -2,12 +2,15 @@ require("dotenv").config();
 
 const fs = require("fs");
 const glob = require("glob");
+const crypto = require("crypto");
 const { get } = require("lodash");
 
 const AWS = require("aws-sdk");
 const bucketName = process.env["BUCKET_NAME"];
 const accessKeyId = process.env["ACCESS_KEY_ID"];
 const secretAccessKey = process.env["SECRET_ACCESS_KEY_ID"];
+
+const { encodeStr } = require("../helpers");
 
 const s3 = new AWS.S3({
   accessKeyId: accessKeyId,
@@ -38,7 +41,7 @@ const findLastDownload = () => {
         .shift()
         .replace("｜", "-");
 
-      resolve({ episodeTitle, path });
+      resolve({ episodeTitle, path, cTime });
     });
   });
 };
@@ -48,14 +51,26 @@ module.exports.uploadPodcast = async () => {
 
   const uploadKey = get(podcast, "episodeTitle");
   const filePath = get(podcast, "path");
+  const createdAt = get(podcast, "cTime");
+
   const file = fs.readFileSync(filePath);
 
+  const episodeTitleEncoded = encodeStr(uploadKey);
+  const createdAtEncoded = encodeStr(createdAt.toString());
+
+  const uuid = crypto.randomBytes(16).toString("hex");
+
   const params = {
-    Key: uploadKey,
+    Key: `${uuid}.mp3`,
     Bucket: bucketName,
     Body: file,
     ContentType: "audio/mpeg",
     ACL: "public-read",
+    Metadata: {
+      uuid: uuid,
+      created: createdAtEncoded.join(" "),
+      title: episodeTitleEncoded.join(" "),
+    },
   };
 
   console.log("Starting S3 bucket upload...");
@@ -64,6 +79,7 @@ module.exports.uploadPodcast = async () => {
     s3.upload(params, (err, data) => {
       if (err) return reject(err);
       console.log(data);
+      console.log(`Podcast Upload Success: ${uploadKey}`);
       resolve(data);
     });
   });
