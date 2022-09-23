@@ -1,4 +1,4 @@
-const { exec } = require("child_process");
+const { exec } = require('../logging.js');
 
 module.exports.downloadVideo = async (url) => {
 
