@@ -15,6 +15,6 @@
     "glob": "^8.0.3",
     "lodash": "^4.17.21",
     "xmlbuilder2": "^3.0.2",
-    "youtubei": "^1.0.0-rc.5"
+    "youtubei": "^1.1.2"
   }
 }
