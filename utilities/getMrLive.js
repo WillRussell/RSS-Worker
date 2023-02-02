@@ -9,7 +9,7 @@ const youtube = new Client();
 
 const isUrl = (str) => str.toLowerCase().includes("https://");
 
-module.exports.getUrl = async () => {
+module.exports.getMrLiveUrl = async () => {
 
   /* Step 1: Find the Youtube channel & get latest uploads */
   const channel = await youtube.findOne(channelName, { type: "channel" });
@@ -19,6 +19,14 @@ module.exports.getUrl = async () => {
   const liveShowList = channel.videos.items.filter((item) =>
     item.title.toLowerCase().includes("mr live")
   );
+
+  // liveShowList is broken since Youtube changed its UI and removed live streams from the "Videos" tab.
+  // The YoutubeI api has no way of accessing the new "Live" tab where old streams are stored.
+  // Github issue:
+  // https://github.com/SuspiciousLookingOwl/youtubei/issues/72#issuecomment-1403395409
+
+  console.log("LIVE SHOW LIST");
+  console.log(liveShowList);
 
   /* Step 3: Get video ID of the most recent live broadcast  */
   const latestLiveShow = liveShowList.shift();
