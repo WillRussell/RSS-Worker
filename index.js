@@ -1,5 +1,6 @@
 const { getMrLiveUrl } = require("./utilities/getMrLive");
 const { downloadVideo } = require("./utilities/downloadVideo");
+const { downloadVideoDescription } = require("./utilities/downloadVideoDescription");
 const { uploadPodcast } = require("./utilities/uploadPodcast");
 const { updateRss } = require("./utilities/updateRss");
 const { generateXml } = require("./utilities/generateXml");
@@ -10,6 +11,7 @@ async function run() {
   // const url = await getMrLiveUrl();
 
   await downloadVideo(url);
+  await downloadVideoDescription(url);
   await uploadPodcast();
   await generateXml();
   await updateRss();
