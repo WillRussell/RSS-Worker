@@ -11,3 +11,8 @@ Running this project locally requires [yt-dlp](https://github.com/yt-dlp/yt-dlp#
 ## Scripts
 
 ### `node worker`
+
+## TODO: 
+
+- change getUrl.js -> validateUrl.js (and write logic to valid user input from cmd line)
+- put the logic from getUrl into new file called runMrLiveTask.js & update the code find live episodes in the new ui
