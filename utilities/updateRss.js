@@ -1,5 +1,6 @@
 require("dotenv").config();
 
+const chalk = require("chalk");
 const fs = require("fs");
 
 const AWS = require("aws-sdk");
@@ -13,7 +14,7 @@ const s3 = new AWS.S3({
 });
 
 module.exports.updateRss = async () => {
-  console.log("Updating RSS File...");
+  console.log(chalk.bold.blueBright("Updating podcast RSS feed...\n"));
 
   const fileName = "rss.xml";
   const filePath = `./${fileName}`;
@@ -30,7 +31,9 @@ module.exports.updateRss = async () => {
   const updatePromise = new Promise((resolve, reject) => {
     s3.upload(params, (err, data) => {
       if (err) return reject(err);
-      console.log(data);
+      Object.entries(data).forEach(([key,value]) => {
+        console.log(`${chalk.blackBright(key)}: ${chalk.white(value)}`);
+      });
       resolve(data);
     });
   });

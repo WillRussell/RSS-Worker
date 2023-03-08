@@ -1,5 +1,6 @@
 require("dotenv").config();
 
+const chalk = require("chalk");
 const fs = require("fs");
 const glob = require("glob");
 const crypto = require("crypto");
@@ -73,13 +74,16 @@ module.exports.uploadPodcast = async () => {
     },
   };
 
-  console.log("Starting S3 bucket upload...");
+  console.log(chalk.bold.blueBright("Starting S3 bucket upload...\n"));
 
   const uploadPromise = new Promise((resolve, reject) => {
     s3.upload(params, (err, data) => {
       if (err) return reject(err);
-      console.log(data);
-      console.log(`Podcast Upload Success: ${uploadKey}`);
+      // console.log(chalk.blackBright(`Podcast upload success: ${uploadKey}\n`));
+      Object.entries(data).forEach(([key,value]) => {
+        console.log(`${chalk.blackBright(key)}: ${chalk.white(value)}`);
+      });
+      // console.log(chalk.cyan(`Podcast Title: ${uploadKey}\n`));
       resolve(data);
     });
   });

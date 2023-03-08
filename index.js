@@ -1,3 +1,4 @@
+const chalk = require("chalk");
 const { getMrLiveUrl } = require("./utilities/getMrLive");
 const { downloadVideo } = require("./utilities/downloadVideo");
 const { uploadPodcast } = require("./utilities/uploadPodcast");
@@ -14,7 +15,7 @@ async function run() {
   await generateXml();
   await updateRss();
 
-  console.log("Task Complete: Youtube video transformed to Podcast");
+  console.log(chalk.bold.blueBright("\nSuccess! Youtube video transformed, stored, & exposed on the updated rss\n"));
 }
 
 run();

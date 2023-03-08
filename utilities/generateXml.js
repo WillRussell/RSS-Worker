@@ -1,5 +1,6 @@
 require("dotenv").config();
 
+const chalk = require("chalk");
 const fs = require("fs");
 const { create } = require("xmlbuilder2");
 const { get } = require("lodash");
@@ -21,7 +22,7 @@ const s3 = new AWS.S3({
 
 module.exports.generateXml = async () => {
 
-  console.log("Generating new XML file...")
+  console.log(chalk.bold.blueBright("\nGenerating new XML file..."));
 
   const podcastCollection = [];
 
@@ -98,7 +99,7 @@ module.exports.generateXml = async () => {
   const xmlPromise = new Promise((resolve, reject) => {
     fs.writeFile('rss.xml', xml, (err, data) => {
       if (err) return reject(err);
-      console.log(`Success: XML file created for RSS Feed`);
+      console.log(chalk.blackBright(`Done.\n`));
       resolve();
     });
   });
