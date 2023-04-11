@@ -27,6 +27,8 @@ PODCAST_FEED_IMAGE=
 ```
 node index https://www.youtube.com/watch?v=ofmDFkcwXxA
 ```
+##### Example output:
+<img width="600" alt="Logging improvements" src="https://user-images.githubusercontent.com/8751625/231025988-f19c2317-dabf-4f88-aeeb-f9ecc5ff151a.png">
 
 ## TODO: 
 
