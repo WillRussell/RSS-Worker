@@ -1,12 +1,8 @@
 const { exec } = require('child_process');
-const chalk = require('chalk');
-
-function logInfo(message, value) {
-  console.log(chalk.blackBright(message + ': ') + chalk.white(value));
-}
+const { logBright, logInfo } = require('../logging');
 
 module.exports.getVideoInfo = async (url) => {
-  console.log(chalk.bold.blueBright('\nFetching video meta data...\n'));
+  logBright(`\nFetching video info...`);
 
   // --skip-download skips downloading the video
   // --print prints the video metadata

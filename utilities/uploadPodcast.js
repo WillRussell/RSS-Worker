@@ -1,6 +1,5 @@
 require('dotenv').config();
 
-const chalk = require('chalk');
 const fs = require('fs');
 const glob = require('glob');
 const crypto = require('crypto');
@@ -12,6 +11,7 @@ const accessKeyId = process.env['ACCESS_KEY_ID'];
 const secretAccessKey = process.env['SECRET_ACCESS_KEY_ID'];
 
 const { encodeStr } = require('../helpers');
+const { logBright, logInfo } = require('../logging');
 
 const s3 = new AWS.S3({
   accessKeyId: accessKeyId,
@@ -85,13 +85,13 @@ module.exports.uploadPodcast = async (podcastInfo) => {
     },
   };
 
-  console.log(chalk.bold.blueBright('Starting S3 bucket upload...\n'));
+  logBright('Starting S3 bucket upload...');
 
   const uploadPromise = new Promise((resolve, reject) => {
     s3.upload(params, (err, data) => {
       if (err) return reject(err);
       Object.entries(data).forEach(([key, value]) => {
-        console.log(`${chalk.blackBright(key)}: ${chalk.white(value)}`);
+        logInfo(key, value);
       });
       resolve(data);
     });
