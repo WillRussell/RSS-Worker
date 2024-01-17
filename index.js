@@ -1,9 +1,10 @@
-const chalk = require('chalk');
 const { getVideoInfo } = require('./utilities/getVideoInfo');
 const { downloadVideo } = require('./utilities/downloadVideo');
 const { uploadPodcast } = require('./utilities/uploadPodcast');
 const { updateRss } = require('./utilities/updateRss');
 const { generateXml } = require('./utilities/generateXml');
+
+const { logBright } = require('./logging');
 
 async function run() {
   const args = process.argv.slice(2);
@@ -15,10 +16,8 @@ async function run() {
   await generateXml();
   await updateRss();
 
-  console.log(
-    chalk.bold.blueBright(
-      '\nSuccess! Youtube video transformed, stored, & exposed on the updated rss\n'
-    )
+  logBright(
+    '\nSuccess! Youtube video transformed, stored, & exposed on the updated rss'
   );
 }
 
