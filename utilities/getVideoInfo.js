@@ -1,5 +1,5 @@
-const { exec } = require('child_process');
-const { logBright, logInfo } = require('../logging');
+const { exec } = require("child_process");
+const { logBright, logInfo } = require("../logging");
 
 module.exports.getVideoInfo = async (url) => {
   logBright(`\nFetching video info...`);
@@ -28,11 +28,11 @@ module.exports.getVideoInfo = async (url) => {
       const result = JSON.parse(stdout);
       const { id, title, upload_date, duration, uploader } = result;
 
-      logInfo('Channel Name', uploader);
-      logInfo('Video Title', title);
-      logInfo('Video ID', id);
-      logInfo('Upload Date', upload_date);
-      logInfo('Duration', duration);
+      logInfo("Channel Name", uploader);
+      logInfo("Video Title", title);
+      logInfo("Video ID", id);
+      logInfo("Upload Date", upload_date);
+      logInfo("Duration", duration);
 
       resolve(result);
     });

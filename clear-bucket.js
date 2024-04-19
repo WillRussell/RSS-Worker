@@ -4,7 +4,13 @@ const AWS = require('aws-sdk');
 const chalk = require('chalk');
 const bucketName = process.env['BUCKET_NAME'];
 
-const s3 = new AWS.S3();
+const accessKeyId = process.env['ACCESS_KEY_ID'];
+const secretAccessKey = process.env['SECRET_ACCESS_KEY_ID'];
+
+const s3 = new AWS.S3({
+  accessKeyId: accessKeyId,
+  secretAccessKey: secretAccessKey,
+});
 
 async function clearMp3Files() {
   console.log(
