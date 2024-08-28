@@ -5,7 +5,8 @@ const fs = require('fs');
 const { create } = require('xmlbuilder2');
 const { get } = require('lodash');
 const AWS = require('aws-sdk');
-const { logBright, logInfo } = require('../logging');
+const { logBright, logInfo, log } = require('../logging');
+const fsp = require('fs').promises; // Use promises version of fs
 
 const { decodeCharCodes } = require('../helpers');
 
@@ -22,7 +23,19 @@ const s3 = new AWS.S3({
 });
 
 module.exports.generateXml = async () => {
-  console.log(chalk.bold.blueBright('\nGenerating new XML file...'));
+  try {
+    logBright('\nDeleting existing XML file...');
+    await fsp.unlink('rss.xml');
+    log('Done.');
+  } catch (error) {
+    if (error.code === 'ENOENT') {
+      log('A local rss.xml file was not found.');
+    } else {
+      throw error;
+    }
+  }
+
+  logBright('\nGenerating new XML file...');
 
   const podcastCollection = [];
 
@@ -60,51 +73,84 @@ module.exports.generateXml = async () => {
 
       const publicUrl = `${bucketUrl}/${resourceId}.mp3`;
 
-      podcastCollection.push({
-        id: resourceId,
-        createdAt: createdAtDecoded,
-        title: episodeTitleDecoded,
-        duration: episodeDurationDecoded,
-        videoId: episodeVideoIdDecoded,
-        uploadDate: episodeUploadDateDecoded,
-        url: publicUrl,
-      });
+      const fileSize = headObj.ContentLength;
+
+      if (fileSize) {
+        podcastCollection.push({
+          id: resourceId,
+          createdAt: createdAtDecoded,
+          title: episodeTitleDecoded,
+          duration: episodeDurationDecoded,
+          videoId: episodeVideoIdDecoded,
+          uploadDate: episodeUploadDateDecoded,
+          url: publicUrl,
+          size: fileSize,
+        });
+      }
     }
   }
 
   // Base of XML Document. Everything lives inside Channel Tag
   const dynamicRoot = create({ version: '1.0' })
-    .ele('rss', { version: '2.0' })
+    .ele('rss', {
+      version: '2.0',
+      'xmlns:itunes': 'http://www.itunes.com/dtds/podcast-1.0.dtd',
+    })
     .ele('channel')
     .up();
 
   // Append Channel Tag, add title and RSS Feed image
-  dynamicRoot.root().first().ele('title')
-    .txt('Gray Wolf Feed').up()
+  dynamicRoot
+    .root()
+    .first()
+    .ele('title')
+    .txt('Gray Wolf Feed')
+    .up()
     .ele('image')
-    .ele('url').txt(podcastFeedImage)
+    .ele('url')
+    .txt(podcastFeedImage)
     .up();
 
   // Run the forEach loop across the mp3s from s3
   // add <item> tags for each podcast.
   podcastCollection.forEach((o) => {
-    dynamicRoot.root().first()
+    dynamicRoot
+      .root()
+      .first()
       .ele('item')
-      .ele('title').txt(o.title).up()
-      .ele('itunes:author').txt('GRAY WOLF AUTHOR').up()
-      .ele('itunes:subtitle').txt('GRAY WOLF SUBTITLE').up()
-      .ele('itunes:summary').txt(`Uploaded: ${o.uploadDate}, Duration: ${o.duration}, Youtube ID: ${o.videoId}`).up()
-      .ele('itunes:image', { href: podcastFeedImage }).up()
+      .ele('title')
+      .txt(o.title)
+      .up()
+      .ele('itunes:author')
+      .txt('GRAY WOLF AUTHOR')
+      .up()
+      .ele('itunes:subtitle')
+      .txt('GRAY WOLF SUBTITLE')
+      .up()
+      .ele('itunes:summary')
+      .txt(
+        `Uploaded: ${o.uploadDate}, Duration: ${o.duration}, Youtube ID: ${o.videoId}`
+      )
+      .up()
+      .ele('itunes:image', { href: podcastFeedImage })
+      .up()
       .ele('enclosure', {
         url: o.url,
-        length: '',
+        length: o.size.toString(), // Ensure this is a string in XML attributes
         type: 'audio/mpeg',
-      }).up()
-      .ele('guid').txt(' ').up()
-      .ele('pubDate').txt(o.createdAt).up()
-      .ele('itunes:duration').txt(o.duration).up();
+      })
+      .up()
+      .ele('guid')
+      .txt(o.id)
+      .up()
+      .ele('pubDate')
+      .txt(o.createdAt)
+      .up()
+      .ele('itunes:duration')
+      .txt(o.duration)
+      .up()
+      .up();
   });
-
   // convert the XML tree to string
   const xml = dynamicRoot.end({ prettyPrint: true });
 
