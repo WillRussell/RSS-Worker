@@ -1,6 +1,7 @@
 const { getVideoInfo } = require('./utilities/getVideoInfo');
 const { downloadVideo } = require('./utilities/downloadVideo');
 const { uploadPodcast } = require('./utilities/uploadPodcast');
+const { removeDownloads } = require('./utilities/removeDownloads');
 const { updateRss } = require('./utilities/updateRss');
 const { generateXml } = require('./utilities/generateXml');
 
@@ -13,6 +14,7 @@ async function run() {
   const videoInfo = await getVideoInfo(url);
   await downloadVideo(url);
   await uploadPodcast(videoInfo);
+  await removeDownloads(); // Delete 'downloads' directory
   await generateXml();
   await updateRss();
 
