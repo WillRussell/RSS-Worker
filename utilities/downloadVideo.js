@@ -2,7 +2,12 @@ const { spawn } = require('child_process');
 const chalk = require('chalk');
 const { log, logBright } = require('../logging');
 
-const DOWNLOAD_PROGRESS_RE = /\[download\]\s+([\d.]+)%/;
+const DOWNLOAD_PROGRESS_RE = /\[download\]\s+([\d.]+)%(?:\s+of\s+[^\s]+\s+at\s+([\S]+)\s+ETA\s+(\S+))?/;
+
+function buildProgressBar(pct, width = 20) {
+  const filled = Math.round((pct / 100) * width);
+  return chalk.bold.blueBright('█'.repeat(filled)) + chalk.blackBright('░'.repeat(width - filled));
+}
 
 module.exports.downloadVideo = async (url) => {
   logBright('\nStarting download & mp3 transform...');
@@ -29,15 +34,22 @@ module.exports.downloadVideo = async (url) => {
         const match = trimmed.match(DOWNLOAD_PROGRESS_RE);
         if (match) {
           inDownloadPhase = true;
+          const pct = parseFloat(match[1]);
+          const bar = buildProgressBar(pct);
+          const speed = match[2] ? chalk.blackBright(`  ${match[2]}`) : '';
+          const eta = match[3] ? chalk.blackBright(`  ETA ${match[3]}`) : '';
           process.stdout.write(
-            chalk.bold.blueBright(`\r  Downloading... ${chalk.white(match[1] + '%')}   `)
+            `\r${chalk.bold.blueBright('Downloading')}  ${chalk.white('[' + bar + ']')}  ${chalk.bold.white(match[1] + '%')}${speed}${eta}   `
           );
         } else {
           if (inDownloadPhase) {
-            process.stdout.write('\n');
+            process.stdout.write('\n\n');
             inDownloadPhase = false;
           }
           log(trimmed);
+          if (trimmed.startsWith('[download] Destination:')) {
+            process.stdout.write('\n');
+          }
         }
       }
     });
@@ -49,7 +61,7 @@ module.exports.downloadVideo = async (url) => {
           inDownloadPhase = false;
         }
         conversionMessageShown = true;
-        logBright('Converting to mp3...');
+        logBright('\nConverting to mp3...');
       }
     });
 
