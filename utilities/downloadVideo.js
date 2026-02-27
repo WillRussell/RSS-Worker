@@ -1,27 +1,33 @@
-const { spawn } = require('child_process');
-const chalk = require('chalk');
-const { log, logBright } = require('../logging');
+const { spawn } = require("child_process");
+const chalk = require("chalk");
+const { log, logBright } = require("../logging");
 
-const DOWNLOAD_PROGRESS_RE = /\[download\]\s+([\d.]+)%(?:\s+of\s+[^\s]+\s+at\s+([\S]+)\s+ETA\s+(\S+))?/;
-const SPINNER_FRAMES = ['⠋', '⠙', '⠹', '⠸', '⠼', '⠴', '⠦', '⠧', '⠣', '⠏'];
+const DOWNLOAD_PROGRESS_RE =
+  /\[download\]\s+([\d.]+)%(?:\s+of\s+[^\s]+\s+at\s+([\S]+)\s+ETA\s+(\S+))?/;
+const SPINNER_FRAMES = ["⠋", "⠙", "⠹", "⠸", "⠼", "⠴", "⠦", "⠧", "⠣", "⠏"];
 
 function buildProgressBar(pct, width = 20) {
   const filled = Math.round((pct / 100) * width);
-  return chalk.bold.blueBright('█'.repeat(filled)) + chalk.blackBright('░'.repeat(width - filled));
+  return (
+    chalk.bold.blueBright("█".repeat(filled)) +
+    chalk.blackBright("░".repeat(width - filled))
+  );
 }
 
 module.exports.downloadVideo = async (url) => {
-  logBright('\nStarting download & mp3 transform...');
+  logBright("\nStarting download & mp3 transform...");
 
   const ytDlpArgs = [
-    '-o', './downloads/%(title)s.%(ext)s',
-    '-x',
-    '--audio-format', 'mp3',
+    "-o",
+    "./downloads/%(title)s.%(ext)s",
+    "-x",
+    "--audio-format",
+    "mp3",
     url,
   ];
 
   return new Promise((resolve, reject) => {
-    const child = spawn('yt-dlp', ytDlpArgs);
+    const child = spawn("yt-dlp", ytDlpArgs);
 
     let inDownloadPhase = false;
     let conversionMessageShown = false;
@@ -32,7 +38,7 @@ module.exports.downloadVideo = async (url) => {
       spinnerFrame = 0;
       spinnerInterval = setInterval(() => {
         process.stdout.write(
-          `\r${chalk.bold.blueBright('Extracting audio...')}  ${chalk.white(SPINNER_FRAMES[spinnerFrame % SPINNER_FRAMES.length])}   `
+          `\r${chalk.bold.blueBright("Extracting audio...")}  ${chalk.white(SPINNER_FRAMES[spinnerFrame % SPINNER_FRAMES.length])}   `,
         );
         spinnerFrame++;
       }, 80);
@@ -43,13 +49,13 @@ module.exports.downloadVideo = async (url) => {
         clearInterval(spinnerInterval);
         spinnerInterval = null;
         process.stdout.write(
-          `\r${chalk.bold.blueBright('Extracting audio...')}  ${chalk.white('Complete ✓')}   \n\n`
+          `\r${chalk.bold.blueBright("Extracting audio...")}  ${chalk.white("Complete ✓")}   \n\n`,
         );
       }
     }
 
-    child.stdout.on('data', (chunk) => {
-      const lines = chunk.toString().split('\n');
+    child.stdout.on("data", (chunk) => {
+      const lines = chunk.toString().split("\n");
       for (const line of lines) {
         const trimmed = line.trim();
         if (!trimmed) continue;
@@ -59,41 +65,44 @@ module.exports.downloadVideo = async (url) => {
           inDownloadPhase = true;
           const pct = parseFloat(match[1]);
           const bar = buildProgressBar(pct);
-          const speed = match[2] ? chalk.blackBright(`  ${match[2]}`) : '';
-          const eta = match[3] ? chalk.blackBright(`  ETA ${match[3]}`) : '';
+          const speed = match[2] ? chalk.blackBright(`  ${match[2]}`) : "";
+          const eta = match[3] ? chalk.blackBright(`  ETA ${match[3]}`) : "";
           process.stdout.write(
-            `\r${chalk.bold.blueBright('Downloading')}  ${chalk.white('[' + bar + ']')}  ${chalk.bold.white(match[1] + '%')}${speed}${eta}   `
+            `\r${chalk.bold.blueBright("Downloading")}  ${chalk.white("[" + bar + "]")}  ${chalk.bold.white(match[1] + "%")}${speed}${eta}   `,
           );
         } else {
           if (inDownloadPhase) {
-            process.stdout.write('\n\n');
+            process.stdout.write("\n\n");
             inDownloadPhase = false;
           }
           stopSpinner();
-          if (trimmed.startsWith('[ExtractAudio] Destination:')) {
+          if (trimmed.startsWith("[ExtractAudio] Destination:")) {
             startSpinner();
           } else {
             log(trimmed);
-            if (trimmed.startsWith('[download] Destination:') || trimmed.startsWith('Deleting original file')) {
-              process.stdout.write('\n');
+            if (
+              trimmed.startsWith("[download] Destination:") ||
+              trimmed.startsWith("Deleting original file")
+            ) {
+              process.stdout.write("\n");
             }
           }
         }
       }
     });
 
-    child.stderr.on('data', () => {
+    child.stderr.on("data", () => {
       if (!conversionMessageShown) {
         if (inDownloadPhase) {
-          process.stdout.write('\n');
+          process.stdout.write("\n");
           inDownloadPhase = false;
         }
         conversionMessageShown = true;
-        logBright('\nConverting to mp3...');
+        logBright("\nChecking format(s)...");
       }
     });
 
-    child.on('close', (code) => {
+    child.on("close", (code) => {
       stopSpinner();
       if (code === 0) {
         resolve();
@@ -102,6 +111,6 @@ module.exports.downloadVideo = async (url) => {
       }
     });
 
-    child.on('error', (err) => reject(err));
+    child.on("error", (err) => reject(err));
   });
 };

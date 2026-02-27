@@ -85,7 +85,7 @@ module.exports.uploadPodcast = async (podcastInfo) => {
     },
   };
 
-  logBright('Starting S3 bucket upload...');
+  logBright('\nStarting S3 bucket upload...');
 
   const uploadPromise = new Promise((resolve, reject) => {
     s3.upload(params, (err, data) => {

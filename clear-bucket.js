@@ -2,6 +2,10 @@ require('dotenv').config();
 
 const AWS = require('aws-sdk');
 const chalk = require('chalk');
+const { banner } = require('./logging');
+
+banner();
+
 const bucketName = process.env['BUCKET_NAME'];
 
 const accessKeyId = process.env['ACCESS_KEY_ID'];

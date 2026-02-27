@@ -9,7 +9,9 @@ const { uploadPodcast } = require('./utilities/uploadPodcast');
 const { updateRss } = require('./utilities/updateRss');
 const { generateXml } = require('./utilities/generateXml');
 
-const { logBright, logInfo } = require('./logging');
+const { logBright, logInfo, banner } = require('./logging');
+
+banner();
 
 const channelName = process.env['CHANNEL_NAME'];
 
@@ -46,7 +48,7 @@ async function getMrLive() {
     ? endString
     : textCollection.find((str) => isUrl(str));
 
-  logInfo('Target URL', `${targetUrl}\n`);
+  logInfo('Target URL', `${targetUrl}`);
 
   const videoInfo = await getVideoInfo(targetUrl);
   await downloadVideo(targetUrl);

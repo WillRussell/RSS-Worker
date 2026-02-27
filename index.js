@@ -5,7 +5,9 @@ const { removeDownloads } = require('./utilities/removeDownloads');
 const { updateRss } = require('./utilities/updateRss');
 const { generateXml } = require('./utilities/generateXml');
 
-const { logBright } = require('./logging');
+const { logBright, banner } = require('./logging');
+
+banner();
 
 async function run() {
   const args = process.argv.slice(2);
