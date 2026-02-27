@@ -3,6 +3,7 @@ const chalk = require('chalk');
 const { log, logBright } = require('../logging');
 
 const DOWNLOAD_PROGRESS_RE = /\[download\]\s+([\d.]+)%(?:\s+of\s+[^\s]+\s+at\s+([\S]+)\s+ETA\s+(\S+))?/;
+const SPINNER_FRAMES = ['⠋', '⠙', '⠹', '⠸', '⠼', '⠴', '⠦', '⠧', '⠣', '⠏'];
 
 function buildProgressBar(pct, width = 20) {
   const filled = Math.round((pct / 100) * width);
@@ -24,6 +25,28 @@ module.exports.downloadVideo = async (url) => {
 
     let inDownloadPhase = false;
     let conversionMessageShown = false;
+    let spinnerInterval = null;
+    let spinnerFrame = 0;
+
+    function startSpinner() {
+      spinnerFrame = 0;
+      spinnerInterval = setInterval(() => {
+        process.stdout.write(
+          `\r${chalk.bold.blueBright('Extracting audio...')}  ${chalk.white(SPINNER_FRAMES[spinnerFrame % SPINNER_FRAMES.length])}   `
+        );
+        spinnerFrame++;
+      }, 80);
+    }
+
+    function stopSpinner() {
+      if (spinnerInterval !== null) {
+        clearInterval(spinnerInterval);
+        spinnerInterval = null;
+        process.stdout.write(
+          `\r${chalk.bold.blueBright('Extracting audio...')}  ${chalk.white('✓')}   \n\n`
+        );
+      }
+    }
 
     child.stdout.on('data', (chunk) => {
       const lines = chunk.toString().split('\n');
@@ -46,9 +69,14 @@ module.exports.downloadVideo = async (url) => {
             process.stdout.write('\n\n');
             inDownloadPhase = false;
           }
-          log(trimmed);
-          if (trimmed.startsWith('[download] Destination:')) {
-            process.stdout.write('\n');
+          stopSpinner();
+          if (trimmed.startsWith('[ExtractAudio] Destination:')) {
+            startSpinner();
+          } else {
+            log(trimmed);
+            if (trimmed.startsWith('[download] Destination:') || trimmed.startsWith('Deleting original file')) {
+              process.stdout.write('\n');
+            }
           }
         }
       }
@@ -66,7 +94,7 @@ module.exports.downloadVideo = async (url) => {
     });
 
     child.on('close', (code) => {
-      process.stdout.write('\n');
+      stopSpinner();
       if (code === 0) {
         resolve();
       } else {
