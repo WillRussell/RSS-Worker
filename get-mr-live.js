@@ -1,7 +1,8 @@
 require('dotenv').config();
 
+const { execSync } = require('child_process');
 const { Client } = require('youtubei');
-const { get, pick } = require('lodash');
+const { pick } = require('lodash');
 
 const { getVideoInfo } = require('./utilities/getVideoInfo');
 const { downloadVideo } = require('./utilities/downloadVideo');
@@ -31,8 +32,10 @@ async function getMrLive() {
   const liveShowObj = pick(latestLiveShow, ['id', 'title', 'duration']);
 
   /* Step 3: Fetch the video description  */
-  const video = await youtube.getVideo(liveShowObj.id);
-  const videoDescription = get(video, 'description');
+  const videoDescription = execSync(
+    `yt-dlp --skip-download --print description "https://www.youtube.com/watch?v=${liveShowObj.id}"`,
+    { encoding: 'utf-8' }
+  );
 
   /* Step 4: Parse the target URL from the description */
   const descriptionList = videoDescription.split('\n');
