@@ -4,7 +4,7 @@ const AWS = require('aws-sdk');
 const chalk = require('chalk');
 const { banner } = require('./logging');
 
-banner();
+// banner();
 
 const bucketName = process.env['BUCKET_NAME'];
 

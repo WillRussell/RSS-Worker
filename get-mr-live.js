@@ -6,6 +6,7 @@ const { pick } = require('lodash');
 
 const { getVideoInfo } = require('./utilities/getVideoInfo');
 const { downloadVideo } = require('./utilities/downloadVideo');
+const { removeDownloads } = require('./utilities/removeDownloads');
 const { uploadPodcast } = require('./utilities/uploadPodcast');
 const { updateRss } = require('./utilities/updateRss');
 const { generateXml } = require('./utilities/generateXml');
@@ -56,6 +57,7 @@ async function getMrLive() {
   const videoInfo = await getVideoInfo(targetUrl);
   await downloadVideo(targetUrl);
   await uploadPodcast(videoInfo);
+  await removeDownloads();
   await generateXml();
   await updateRss();
 
