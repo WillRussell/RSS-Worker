@@ -91,7 +91,8 @@ module.exports.downloadVideo = async (url) => {
       }
     });
 
-    child.stderr.on("data", () => {
+    child.stderr.on("data", (chunk) => {
+      const message = chunk.toString();
       if (!conversionMessageShown) {
         if (inDownloadPhase) {
           process.stdout.write("\n");
@@ -100,6 +101,7 @@ module.exports.downloadVideo = async (url) => {
         conversionMessageShown = true;
         logBright("\nChecking format(s)...");
       }
+      process.stderr.write(message);
     });
 
     child.on("close", (code) => {
