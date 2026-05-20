@@ -17,12 +17,21 @@ function buildProgressBar(pct, width = 20) {
 module.exports.downloadVideo = async (url) => {
   logBright("\nStarting download & mp3 transform...");
 
-  const ytDlpArgs = [
+  // const ytDlpArgs = [
+    // "-o",
+    // "./downloads/%(title)s.%(ext)s",
+    // "-x",
+  //   "--audio-format",
+  //   "mp3",
+  //   url,
+  // ];
+
+    const ytDlpArgs = [
+    "-f",
+     "bestaudio[acodec^=opus]/bestaudio",
     "-o",
     "./downloads/%(title)s.%(ext)s",
     "-x",
-    "--audio-format",
-    "mp3",
     url,
   ];
 

@@ -3,6 +3,7 @@ require('dotenv').config();
 const fs = require('fs');
 const glob = require('glob');
 const crypto = require('crypto');
+const pathModule = require('path');
 const { get } = require('lodash');
 
 const AWS = require('aws-sdk');
@@ -20,7 +21,7 @@ const s3 = new AWS.S3({
 
 const findLastDownload = () => {
   return new Promise((resolve, reject) => {
-    glob('./downloads' + '/**/*.mp3', {}, (err, files) => {
+     glob('./downloads/**/*', { nodir: true }, (err, files) => {
       if (err) return reject(err);
 
       let cTime = null;
@@ -34,13 +35,11 @@ const findLastDownload = () => {
           path = file;
         }
       });
+      
 
-      const episodeTitle = path
-        .split('./downloads/')
-        .pop()
-        .split('.mp3')
-        .shift()
-        .replace('｜', '-');
+      const episodeTitle = pathModule.parse(path).name.replace(/[|｜]/g, '-');
+
+      
 
       resolve({ episodeTitle, path, cTime });
     });
