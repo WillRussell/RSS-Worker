@@ -22,6 +22,11 @@ const s3 = new AWS.S3({
   secretAccessKey: secretAccessKey,
 });
 
+const AUDIO_CONTENT_TYPES = {
+  '.m4a': 'audio/mp4',
+  '.mp3': 'audio/mpeg',
+};
+
 module.exports.generateXml = async () => {
   try {
     logBright('\nDeleting existing XML file...');
@@ -47,10 +52,11 @@ module.exports.generateXml = async () => {
   for (let index = 0; index < contents.length; index++) {
     const fileObj = contents[index];
     const fileName = get(fileObj, 'Key');
+    const extension = fileName.slice(fileName.lastIndexOf('.')).toLowerCase();
 
-    const isMp3 = fileName.includes('.mp3');
+    const contentType = AUDIO_CONTENT_TYPES[extension];
 
-    if (isMp3) {
+    if (contentType) {
       const headObj = await s3
         .headObject({ ...params, Key: fileName })
         .promise();
@@ -71,7 +77,7 @@ module.exports.generateXml = async () => {
         episodeUploadDateEncoded
       );
 
-      const publicUrl = `${bucketUrl}/${resourceId}.mp3`;
+      const publicUrl = `${bucketUrl}/${fileName}`;
 
       const fileSize = headObj.ContentLength;
 
@@ -85,6 +91,7 @@ module.exports.generateXml = async () => {
           uploadDate: episodeUploadDateDecoded,
           url: publicUrl,
           size: fileSize,
+          contentType: headObj.ContentType || contentType,
         });
       }
     }
@@ -111,7 +118,7 @@ module.exports.generateXml = async () => {
     .txt(podcastFeedImage)
     .up();
 
-  // Run the forEach loop across the mp3s from s3
+  // Run the forEach loop across the audio files from s3
   // add <item> tags for each podcast.
   podcastCollection.forEach((o) => {
     dynamicRoot
@@ -137,7 +144,7 @@ module.exports.generateXml = async () => {
       .ele('enclosure', {
         url: o.url,
         length: o.size.toString(), // Ensure this is a string in XML attributes
-        type: 'audio/mpeg',
+        type: o.contentType,
       })
       .up()
       .ele('guid')

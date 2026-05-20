@@ -11,6 +11,11 @@ const bucketName = process.env['BUCKET_NAME'];
 const accessKeyId = process.env['ACCESS_KEY_ID'];
 const secretAccessKey = process.env['SECRET_ACCESS_KEY_ID'];
 
+const AUDIO_CONTENT_TYPES = {
+  '.m4a': 'audio/mp4',
+  '.mp3': 'audio/mpeg',
+};
+
 const { encodeStr } = require('../helpers');
 const { logBright, logInfo } = require('../logging');
 
@@ -21,7 +26,7 @@ const s3 = new AWS.S3({
 
 const findLastDownload = () => {
   return new Promise((resolve, reject) => {
-     glob('./downloads/**/*', { nodir: true }, (err, files) => {
+    glob('./downloads/**/*', { nodir: true }, (err, files) => {
       if (err) return reject(err);
 
       let cTime = null;
@@ -35,13 +40,15 @@ const findLastDownload = () => {
           path = file;
         }
       });
-      
 
-      const episodeTitle = pathModule.parse(path).name.replace(/[|｜]/g, '-');
+      if (!path) return reject(new Error('No downloaded audio file found.'));
 
-      
+      const parsedPath = pathModule.parse(path);
+      const episodeTitle = parsedPath.name.replace(/[|｜]/g, '-');
+      const extension = parsedPath.ext.toLowerCase();
+      const contentType = AUDIO_CONTENT_TYPES[extension] || 'application/octet-stream';
 
-      resolve({ episodeTitle, path, cTime });
+      resolve({ episodeTitle, path, cTime, extension, contentType });
     });
   });
 };
@@ -52,6 +59,8 @@ module.exports.uploadPodcast = async (podcastInfo) => {
   const uploadKey = get(podcast, 'episodeTitle');
   const filePath = get(podcast, 'path');
   const createdAt = get(podcast, 'cTime');
+  const extension = get(podcast, 'extension');
+  const contentType = get(podcast, 'contentType');
 
   const file = fs.readFileSync(filePath);
 
@@ -69,10 +78,10 @@ module.exports.uploadPodcast = async (podcastInfo) => {
   const durationEncoded = encodeStr(duration);
 
   const params = {
-    Key: `${uuid}.mp3`,
+    Key: `${uuid}${extension}`,
     Bucket: bucketName,
     Body: file,
-    ContentType: 'audio/mpeg',
+    ContentType: contentType,
     ACL: 'public-read',
     Metadata: {
       uuid: uuid,
