@@ -16,7 +16,17 @@ const s3 = new AWS.S3({
   secretAccessKey: secretAccessKey,
 });
 
-async function clearMp3Files() {
+const AUDIO_EXTENSIONS = new Set(['.m4a', '.mp3']);
+
+function isAudioFile(key) {
+  const extensionStart = key.lastIndexOf('.');
+  const extension =
+    extensionStart === -1 ? '' : key.slice(extensionStart).toLowerCase();
+
+  return AUDIO_EXTENSIONS.has(extension);
+}
+
+async function clearAudioFiles() {
   console.log(
     chalk.bold.blueBright('\nFetching list of objects to remove...  \n')
   );
@@ -27,12 +37,12 @@ async function clearMp3Files() {
     .promise();
   const objects = listObjectsResponse.Contents;
 
-  // Filter out objects that are not mp3 files
-  const mp3Objects = objects.filter((object) => object.Key.endsWith('.mp3'));
-  const mp3Count = mp3Objects.length;
+  // Filter out objects that are not podcast audio files
+  const audioObjects = objects.filter((object) => isAudioFile(object.Key));
+  const audioCount = audioObjects.length;
 
-  // Delete each mp3 file
-  for (const object of mp3Objects) {
+  // Delete each podcast audio file
+  for (const object of audioObjects) {
     await s3.deleteObject({ Bucket: bucketName, Key: object.Key }).promise();
 
     console.log(chalk.blackBright(`Deleted ${object.Key}`));
@@ -40,9 +50,9 @@ async function clearMp3Files() {
 
   console.log(
     chalk.bold.blueBright(
-      `\n${mp3Count} mp3 files have been deleted from the s3 bucket.\n`
+      `\n${audioCount} audio files have been deleted from the s3 bucket.\n`
     )
   );
 }
 
-clearMp3Files().catch(console.error);
+clearAudioFiles().catch(console.error);

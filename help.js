@@ -7,7 +7,7 @@ const commands = [
   { cmd: 'node index <youtube-url>', desc: 'Convert a YouTube video into a podcast episode' },
   { cmd: 'node get-mr-live', desc: 'Auto-find & process the latest MR Live episode' },
   { cmd: 'node list-bucket', desc: 'List all objects in the S3 bucket' },
-  { cmd: 'node clear-bucket', desc: 'Delete all mp3 files from the S3 bucket' },
+  { cmd: 'node clear-bucket', desc: 'Delete all podcast audio files from the S3 bucket' },
   { cmd: 'node get-feed-url', desc: 'Display the podcast RSS feed URL' },
   { cmd: 'node help', desc: 'Show this help message' },
 ];
