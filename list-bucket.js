@@ -2,6 +2,7 @@ require("dotenv").config();
 
 const AWS = require("aws-sdk");
 const chalk = require("chalk");
+const prettyBytes = require("pretty-bytes");
 const { logBright, logInfo, banner } = require("./logging");
 
 banner();
@@ -52,12 +53,12 @@ async function listBucketContents() {
     objects.sort((a, b) => new Date(b.LastModified) - new Date(a.LastModified));
 
     objects.forEach((object, index) => {
-      const sizeInKB = (object.Size / 1024).toFixed(2);
+      const sizeFormatted = prettyBytes(object.Size);
       const lastModified = new Date(object.LastModified).toLocaleString();
 
       console.log(chalk.cyan(`${index + 1}. ${object.Key}`));
       logInfo("   Type", getObjectType(object.Key));
-      logInfo("   Size", `${sizeInKB} KB`);
+      logInfo("   Size", sizeFormatted);
       logInfo("   Last Modified", lastModified);
       logInfo("   ETag", object.ETag);
       console.log("");
@@ -65,14 +66,14 @@ async function listBucketContents() {
 
     // Summary statistics
     const totalSize = objects.reduce((sum, obj) => sum + obj.Size, 0);
-    const totalSizeMB = (totalSize / (1024 * 1024)).toFixed(2);
+    const totalSizeFormatted = prettyBytes(totalSize);
     const audioCount = objects.filter(
       (object) => getObjectType(object.Key) === "Podcast audio",
     ).length;
 
     console.log(chalk.bold.green(`Total objects: ${objects.length}`));
     console.log(chalk.bold.green(`Podcast audio files: ${audioCount}`));
-    console.log(chalk.bold.green(`Total size: ${totalSizeMB} MB\n`));
+    console.log(chalk.bold.green(`Total size: ${totalSizeFormatted}\n`));
   } catch (error) {
     console.error(chalk.red("Error listing bucket contents:"), error.message);
     process.exit(1);
