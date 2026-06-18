@@ -1,8 +1,10 @@
 /node_modules
 /downloads
+/videoWorker/downloads
 
 *.mp3
 *.m4a
+*.mp4
 *.webm
 *.xml
 
