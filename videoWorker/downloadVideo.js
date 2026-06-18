@@ -5,7 +5,7 @@ const chalk = require('chalk');
 const { log, logBright } = require('../logging');
 
 const DOWNLOAD_DIR = path.join(__dirname, 'downloads');
-const VIDEO_PATH = path.join(DOWNLOAD_DIR, 'video-content.mp4');
+const VIDEO_PATH = path.join(DOWNLOAD_DIR, 'video.mp4');
 
 const DOWNLOAD_PROGRESS_RE =
   /\[download\]\s+([\d.]+)%(?:\s+of\s+[^\s]+\s+at\s+([\S]+)\s+ETA\s+(\S+))?/;

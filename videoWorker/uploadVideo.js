@@ -10,7 +10,7 @@ const accessKeyId = process.env['ACCESS_KEY_ID'];
 const secretAccessKey = process.env['SECRET_ACCESS_KEY_ID'];
 const bucketUrl = process.env['BUCKET_URL'];
 
-const VIDEO_KEY = 'video-content.mp4';
+const VIDEO_KEY = 'video.mp4';
 
 const s3 = new AWS.S3({
   accessKeyId,
@@ -62,4 +62,3 @@ module.exports.uploadVideo = async (filePath) => {
     publicUrl,
   };
 };
-
