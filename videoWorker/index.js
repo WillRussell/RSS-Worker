@@ -18,7 +18,7 @@ async function run() {
   const uploadData = await uploadVideo(videoPath);
   await removeDownloads();
 
-  logBright('\nSuccess! Video uploaded and available at:');
+  logBright('\nSuccess! Video uploaded to S3:');
   log(uploadData.publicUrl);
   console.log();
 }

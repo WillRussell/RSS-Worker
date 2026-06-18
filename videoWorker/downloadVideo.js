@@ -4,7 +4,7 @@ const { spawn } = require('child_process');
 const chalk = require('chalk');
 const { log, logBright } = require('../logging');
 
-const DOWNLOAD_DIR = path.join(__dirname, 'downloads');
+const DOWNLOAD_DIR = path.join(__dirname, 'videoDownloads');
 const VIDEO_PATH = path.join(DOWNLOAD_DIR, 'video.mp4');
 
 const DOWNLOAD_PROGRESS_RE =
