@@ -1,9 +1,7 @@
 require('dotenv').config();
 
 const { findMrLink } = require('./find-mr-link');
-const { banner, logBright, logInfo } = require('./logging');
-
-banner();
+const { banner, logBright, logInfo } = require('../logging');
 
 async function run() {
   const channelName = process.env['CHANNEL_NAME'];
@@ -12,7 +10,7 @@ async function run() {
 
   const targetUrl = await findMrLink(channelName);
 
-  logInfo('Target URL', targetUrl);
+  logInfo('\nTarget URL', targetUrl);
   console.log();
 }
 

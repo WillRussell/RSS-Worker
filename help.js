@@ -6,8 +6,9 @@ banner();
 const commands = [
   { cmd: 'node index <youtube-url>', desc: 'Convert a YouTube video into a podcast episode' },
   { cmd: 'node videoWorker <youtube-url>', desc: 'Upload one browser-watchable video to the stable S3 video URL' },
-  { cmd: 'node get-mr-live', desc: 'Auto-find & process the latest MR Live episode' },
-  { cmd: 'node read-mr-link', desc: 'Display the latest MR Fun Half target URL' },
+  { cmd: 'node mr/get-mr-live', desc: 'Auto-find & process the latest MR Live episode' },
+  { cmd: 'node mr/get-mr-live-video', desc: 'Auto-find & upload the latest MR Fun Half video' },
+  { cmd: 'node mr/get-mr-link', desc: 'Display the latest MR Fun Half target URL' },
   { cmd: 'node list-bucket', desc: 'List all objects in the S3 bucket' },
   { cmd: 'node clear-bucket', desc: 'Delete all podcast audio files from the S3 bucket' },
   { cmd: 'node get-feed-url', desc: 'Display the podcast RSS feed URL' },

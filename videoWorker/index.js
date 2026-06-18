@@ -3,15 +3,10 @@ const { downloadVideo } = require('./downloadVideo');
 const { uploadVideo } = require('./uploadVideo');
 const { removeDownloads } = require('./removeDownloads');
 
-banner();
-
-async function run() {
-  const args = process.argv.slice(2);
-  const url = args[0];
-
+async function run(resource) {
+  const url = resource;
   if (!url) {
-    console.error('Usage: node videoWorker <youtube-url>');
-    process.exit(1);
+    throw new Error('A YouTube URL is required');
   }
 
   const videoPath = await downloadVideo(url);
@@ -21,9 +16,29 @@ async function run() {
   logBright('\nSuccess! Video uploaded to S3:');
   log(uploadData.publicUrl);
   console.log();
+
+  return uploadData;
 }
 
-run().catch((err) => {
-  console.error(err.message || err);
-  process.exit(1);
-});
+async function main() {
+  banner();
+
+  const args = process.argv.slice(2);
+  const url = args[0];
+
+  if (!url) {
+    console.error('Usage: node videoWorker <youtube-url>');
+    process.exit(1);
+  }
+
+  await run(url);
+}
+
+if (require.main === module) {
+  main().catch((err) => {
+    console.error(err.message || err);
+    process.exit(1);
+  });
+}
+
+module.exports = { run };

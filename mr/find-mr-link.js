@@ -1,7 +1,7 @@
 const { execFileSync } = require('child_process');
 const { Client } = require('youtubei');
 
-const { logInfo } = require('./logging');
+const { logInfo } = require('../logging');
 
 const URL_RE = /https?:\/\/[^\s)]+/gi;
 
