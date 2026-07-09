@@ -7,6 +7,8 @@ const pathModule = require('path');
 const { get } = require('lodash');
 
 const AWS = require('aws-sdk');
+const chalk = require('chalk');
+const bytes = require('bytes');
 const bucketName = process.env['BUCKET_NAME'];
 const accessKeyId = process.env['ACCESS_KEY_ID'];
 const secretAccessKey = process.env['SECRET_ACCESS_KEY_ID'];
@@ -96,7 +98,24 @@ module.exports.uploadPodcast = async (podcastInfo) => {
   logBright('\nStarting S3 bucket upload...');
 
   const uploadPromise = new Promise((resolve, reject) => {
-    s3.upload(params, (err, data) => {
+    const managedUpload = s3.upload(params);
+
+    managedUpload.on('httpUploadProgress', (progress) => {
+      const pct = Math.round((progress.loaded / progress.total) * 100);
+      const width = 20;
+      const filled = Math.round((pct / 100) * width);
+      const bar =
+        chalk.bold.blueBright('█'.repeat(filled)) +
+        chalk.blackBright('░'.repeat(width - filled));
+      const uploaded = chalk.blackBright(bytes(progress.loaded));
+      const total = chalk.blackBright(bytes(progress.total));
+      process.stdout.write(
+        `\r${chalk.bold.blueBright('Uploading')}  ${chalk.white('[' + bar + ']')}  ${chalk.bold.white(pct + '%')}  ${uploaded} / ${total}   `,
+      );
+    });
+
+    managedUpload.send((err, data) => {
+      process.stdout.write('\n\n');
       if (err) return reject(err);
       Object.entries(data).forEach(([key, value]) => {
         logInfo(key, value);

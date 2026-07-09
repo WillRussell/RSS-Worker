@@ -6,6 +6,8 @@ Node.js app that turns youtube videos into podcasts.
 
 Running this project locally requires [yt-dlp](https://github.com/yt-dlp/yt-dlp#installation), a `youtube-dl` fork with additional features and fixes.
 
+Use with Node Version 20.10.0
+
 ##### Install the dependencies:
 
 ```
