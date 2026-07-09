@@ -3,6 +3,8 @@ require('dotenv').config();
 const fs = require('fs');
 const path = require('path');
 const AWS = require('aws-sdk');
+const chalk = require('chalk');
+const bytes = require('bytes');
 const { logBright, logInfo } = require('../logging');
 
 const bucketName = process.env['BUCKET_NAME'];
@@ -44,7 +46,24 @@ module.exports.uploadVideo = async (filePath) => {
   };
 
   const uploadData = await new Promise((resolve, reject) => {
-    s3.upload(params, (err, data) => {
+    const managedUpload = s3.upload(params);
+
+    managedUpload.on('httpUploadProgress', (progress) => {
+      const pct = Math.round((progress.loaded / progress.total) * 100);
+      const width = 20;
+      const filled = Math.round((pct / 100) * width);
+      const bar =
+        chalk.bold.blueBright('█'.repeat(filled)) +
+        chalk.blackBright('░'.repeat(width - filled));
+      const uploaded = chalk.blackBright(bytes(progress.loaded));
+      const total = chalk.blackBright(bytes(progress.total));
+      process.stdout.write(
+        `\r${chalk.bold.blueBright('Uploading')}  ${chalk.white('[' + bar + ']')}  ${chalk.bold.white(pct + '%')}  ${uploaded} / ${total}   `,
+      );
+    });
+
+    managedUpload.send((err, data) => {
+      process.stdout.write('\n\n');
       if (err) return reject(err);
       resolve(data);
     });
