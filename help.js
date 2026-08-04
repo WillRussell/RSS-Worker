@@ -7,7 +7,7 @@ const commandGroups = [
   {
     title: 'Create & Upload',
     commands: [
-      { cmd: 'node index <youtube-url>', desc: 'Convert a YouTube video into a podcast episode' },
+      { cmd: 'node podcastify <youtube-url>', desc: 'Convert a YouTube video into a podcast episode' },
       { cmd: 'node videoWorker <youtube-url>', desc: 'Upload a browser-watchable video to S3' },
     ],
   },

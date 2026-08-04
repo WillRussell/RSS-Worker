@@ -2,7 +2,7 @@
   "name": "rss-worker",
   "version": "1.0.0",
   "description": "",
-  "main": "index.js",
+  "main": "podcastify.js",
   "scripts": {
     "list-bucket": "node list-bucket.js",
     "delete-bucket-files": "node delete-bucket-files.js",

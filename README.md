@@ -27,7 +27,7 @@ PODCAST_FEED_IMAGE=
 ##### Run the command with your targeted Youtube URL
 
 ```
-node index https://www.youtube.com/watch?v=ofmDFkcwXxA
+node podcastify https://www.youtube.com/watch?v=ofmDFkcwXxA
 ```
 
 ##### List S3 content and delete selected files
