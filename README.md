@@ -1,10 +1,12 @@
 # Podcastify (RSS Worker)
 
-Node.js app that turns youtube videos into podcasts.
+Node.js app that turns youtube videos into hosted audio podcasts.
 
 ## Get Started
 
 Running this project locally requires [yt-dlp](https://github.com/yt-dlp/yt-dlp#installation), a `youtube-dl` fork with additional features and fixes.
+
+Use with Node Version 20.10.0
 
 ##### Install the dependencies:
 
@@ -25,13 +27,19 @@ PODCAST_FEED_IMAGE=
 ##### Run the command with your targeted Youtube URL
 
 ```
-node index https://www.youtube.com/watch?v=ofmDFkcwXxA
+node podcastify https://www.youtube.com/watch?v=ofmDFkcwXxA
 ```
+
+##### List S3 content and delete selected files
+
+```
+npm run interactive-delete
+```
+
+The delete task opens an interactive list. Use the arrow keys to move, Space to
+select files, and Enter to delete the selected files. It shows available S3
+metadata such as the stored podcast title, duration, YouTube video ID, and
+upload date.
+
 ##### Example output:
 <img width="600" alt="Logging improvements" src="https://user-images.githubusercontent.com/8751625/231025988-f19c2317-dabf-4f88-aeeb-f9ecc5ff151a.png">
-
-## TODO: 
-
-- change `getUrl.js` -> `validateUrl.js` (and write logic to valid user input from cmd line)
-- put the logic from getUrl into new file called runMrLiveTask.js & update the code find live episodes in the new ui
-

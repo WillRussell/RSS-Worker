@@ -2,6 +2,7 @@ require("dotenv").config();
 
 const AWS = require("aws-sdk");
 const chalk = require("chalk");
+const bytes = require("bytes");
 const { logBright, logInfo, banner } = require("./logging");
 
 banner();
@@ -16,6 +17,7 @@ const s3 = new AWS.S3({
 });
 
 const AUDIO_EXTENSIONS = new Set([".m4a", ".mp3"]);
+const VIDEO_EXTENSIONS = new Set([".mp4", ".mkv", ".webm", ".mov", ".avi", ".flv", ".wmv"]);
 
 function getObjectType(key) {
   const extensionStart = key.lastIndexOf(".");
@@ -23,6 +25,7 @@ function getObjectType(key) {
     extensionStart === -1 ? "" : key.slice(extensionStart).toLowerCase();
 
   if (AUDIO_EXTENSIONS.has(extension)) return "Podcast audio";
+  if (VIDEO_EXTENSIONS.has(extension)) return "Video";
   if (key === "rss.xml") return "RSS feed";
   return "Other";
 }
@@ -52,12 +55,12 @@ async function listBucketContents() {
     objects.sort((a, b) => new Date(b.LastModified) - new Date(a.LastModified));
 
     objects.forEach((object, index) => {
-      const sizeInKB = (object.Size / 1024).toFixed(2);
+      const sizeFormatted = bytes(object.Size);
       const lastModified = new Date(object.LastModified).toLocaleString();
 
       console.log(chalk.cyan(`${index + 1}. ${object.Key}`));
       logInfo("   Type", getObjectType(object.Key));
-      logInfo("   Size", `${sizeInKB} KB`);
+      logInfo("   Size", sizeFormatted);
       logInfo("   Last Modified", lastModified);
       logInfo("   ETag", object.ETag);
       console.log("");
@@ -65,14 +68,18 @@ async function listBucketContents() {
 
     // Summary statistics
     const totalSize = objects.reduce((sum, obj) => sum + obj.Size, 0);
-    const totalSizeMB = (totalSize / (1024 * 1024)).toFixed(2);
+    const totalSizeFormatted = bytes(totalSize);
     const audioCount = objects.filter(
       (object) => getObjectType(object.Key) === "Podcast audio",
+    ).length;
+    const videoCount = objects.filter(
+      (object) => getObjectType(object.Key) === "Video",
     ).length;
 
     console.log(chalk.bold.green(`Total objects: ${objects.length}`));
     console.log(chalk.bold.green(`Podcast audio files: ${audioCount}`));
-    console.log(chalk.bold.green(`Total size: ${totalSizeMB} MB\n`));
+    console.log(chalk.bold.green(`Video files: ${videoCount}`));
+    console.log(chalk.bold.green(`Total size: ${totalSizeFormatted}\n`));
   } catch (error) {
     console.error(chalk.red("Error listing bucket contents:"), error.message);
     process.exit(1);

@@ -1,37 +1,51 @@
 require('dotenv').config();
 
 const fs = require('fs');
-
+const path = require('path');
 const AWS = require('aws-sdk');
 const chalk = require('chalk');
 const bytes = require('bytes');
+const { logBright, logInfo } = require('../logging');
+
 const bucketName = process.env['BUCKET_NAME'];
 const accessKeyId = process.env['ACCESS_KEY_ID'];
 const secretAccessKey = process.env['SECRET_ACCESS_KEY_ID'];
+const bucketUrl = process.env['BUCKET_URL'];
 
-const { logBright, logInfo } = require('../logging');
+const VIDEO_KEY = 'video.mp4';
 
 const s3 = new AWS.S3({
-  accessKeyId: accessKeyId,
-  secretAccessKey: secretAccessKey,
+  accessKeyId,
+  secretAccessKey,
 });
 
-module.exports.updateRss = async () => {
-  logBright('Updating podcast RSS feed...');
+function getPublicUrl(uploadData) {
+  if (bucketUrl) {
+    return `${bucketUrl.replace(/\/$/, '')}/${VIDEO_KEY}`;
+  }
 
-  const fileName = 'rss.xml';
-  const filePath = `./${fileName}`;
-  const file = fs.readFileSync(filePath);
+  return uploadData.Location;
+}
+
+module.exports.uploadVideo = async (filePath) => {
+  if (!bucketName) {
+    throw new Error('BUCKET_NAME is required in .env');
+  }
+
+  logBright('\nStarting S3 video upload...');
 
   const params = {
-    Key: fileName,
+    Key: VIDEO_KEY,
     Bucket: bucketName,
-    Body: file,
-    ContentType: 'text/xml',
+    Body: fs.createReadStream(filePath),
+    ContentLength: fs.statSync(filePath).size,
+    ContentType: 'video/mp4',
+    ContentDisposition: `inline; filename="${path.basename(VIDEO_KEY)}"`,
+    CacheControl: 'no-cache',
     ACL: 'public-read',
   };
 
-  const updatePromise = new Promise((resolve, reject) => {
+  const uploadData = await new Promise((resolve, reject) => {
     const managedUpload = s3.upload(params);
 
     managedUpload.on('httpUploadProgress', (progress) => {
@@ -51,14 +65,19 @@ module.exports.updateRss = async () => {
     managedUpload.send((err, data) => {
       process.stdout.write('\n\n');
       if (err) return reject(err);
-      Object.entries(data)
-        .filter(([key]) => key !== 'Location')
-        .forEach(([key, value]) => {
-          logInfo(key, value);
-        });
       resolve(data);
     });
   });
 
-  return await updatePromise;
+  Object.entries(uploadData).forEach(([key, value]) => {
+    logInfo(key, value);
+  });
+
+  const publicUrl = getPublicUrl(uploadData);
+  logInfo('Public URL', publicUrl);
+
+  return {
+    ...uploadData,
+    publicUrl,
+  };
 };
