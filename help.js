@@ -7,18 +7,18 @@ const commandGroups = [
   {
     title: 'Create & Upload',
     commands: [
-      { cmd: 'node podcastify <youtube-url>', desc: 'Convert a YouTube video into a podcast episode' },
+      { cmd: 'node podcastify <youtube-url>', desc: 'Transform a YouTube video into a hosted podcast episode' },
       { cmd: 'node videoWorker <youtube-url>', desc: 'Upload a browser-watchable video to S3' },
     ],
   },
-  {
-    title: 'Majority Report',
-    commands: [
-      { cmd: 'node mr/get-mr-live', desc: 'Find and process the latest MR Live episode' },
-      { cmd: 'node mr/get-mr-live-video', desc: 'Find and upload the latest MR Fun Half video' },
-      { cmd: 'node mr/get-mr-link', desc: 'Display the latest MR Fun Half target URL' },
-    ],
-  },
+  // {
+  //   title: 'Majority Report',
+  //   commands: [
+  //     { cmd: 'node mr/get-mr-live', desc: 'Find and process the latest MR Live episode' },
+  //     { cmd: 'node mr/get-mr-live-video', desc: 'Find and upload the latest MR Fun Half video' },
+  //     { cmd: 'node mr/get-mr-link', desc: 'Display the latest MR Fun Half target URL' },
+  //   ],
+  // },
   {
     title: 'View & Inspect',
     commands: [
@@ -30,14 +30,14 @@ const commandGroups = [
   {
     title: 'Storage Maintenance',
     commands: [
-      { cmd: 'node delete-bucket-files', desc: 'Interactively select and delete S3 objects' },
+      { cmd: 'node interactive-delete', desc: 'Interactively select and delete S3 objects' },
       { cmd: 'node clear-bucket', desc: 'Delete all podcast audio files from S3' },
       { cmd: 'node clear-video-files', desc: 'Delete all video files from S3' },
     ],
   },
 ];
 
-console.log(chalk.white('Convert YouTube videos into podcast episodes via S3 + RSS.\n'));
+console.log(chalk.white('Convert YouTube videos into a hosted podcast episodes via S3 + RSS.\n'));
 console.log(chalk.bold.white('Commands:\n'));
 
 const maxCmd = Math.max(

@@ -117,9 +117,11 @@ module.exports.uploadPodcast = async (podcastInfo) => {
     managedUpload.send((err, data) => {
       process.stdout.write('\n\n');
       if (err) return reject(err);
-      Object.entries(data).forEach(([key, value]) => {
-        logInfo(key, value);
-      });
+      Object.entries(data)
+        .filter(([key]) => key !== 'Location')
+        .forEach(([key, value]) => {
+          logInfo(key, value);
+        });
       resolve(data);
     });
   });

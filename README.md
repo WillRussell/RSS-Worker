@@ -33,7 +33,7 @@ node podcastify https://www.youtube.com/watch?v=ofmDFkcwXxA
 ##### List S3 content and delete selected files
 
 ```
-npm run delete-bucket-files
+npm run interactive-delete
 ```
 
 The delete task opens an interactive list. Use the arrow keys to move, Space to

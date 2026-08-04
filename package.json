@@ -5,7 +5,7 @@
   "main": "podcastify.js",
   "scripts": {
     "list-bucket": "node list-bucket.js",
-    "delete-bucket-files": "node delete-bucket-files.js",
+    "interactive-delete": "node interactive-delete.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [],
