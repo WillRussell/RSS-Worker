@@ -1,6 +1,6 @@
 # Podcastify (RSS Worker)
 
-Node.js app that turns youtube videos into podcasts.
+Node.js app that turns youtube videos into hosted audio podcasts.
 
 ## Get Started
 
@@ -43,8 +43,3 @@ upload date.
 
 ##### Example output:
 <img width="600" alt="Logging improvements" src="https://user-images.githubusercontent.com/8751625/231025988-f19c2317-dabf-4f88-aeeb-f9ecc5ff151a.png">
-
-## TODO: 
-
-- change `getUrl.js` -> `validateUrl.js` (and write logic to valid user input from cmd line)
-- put the logic from getUrl into new file called runMrLiveTask.js & update the code find live episodes in the new ui
